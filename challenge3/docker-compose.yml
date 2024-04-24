@@ -1,0 +1,41 @@
+version: '3'
+
+volumes:
+  data:
+services:
+  db: 
+    container_name: challenge3-db
+    build:
+      context: ./docker/db
+      dockerfile: Dockerfile
+    image: mariadb
+    env_file:
+      - .env
+    volumes:
+      - ./docker/db/init:/docker-entrypoint-initdb.d 
+    ports:
+      - "3306:3306"
+      
+  nginx:
+    image: nginx
+    container_name: challenge3-nginx
+    build:
+      context: ./docker/nginx
+      dockerfile: Dockerfile
+    ports:
+      - "8888:80"
+    depends_on:
+      - node-service
+
+  node-service:
+    build:
+      context: ./docker/api
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+   
